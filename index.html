@@ -670,30 +670,13 @@
              <div class="container" style="max-width: 450px;">
                 <div class="card shadow-sm custom-card">
                     <div class="card-body p-4">
-                        <!-- Common Login Form -->
-                        <form id="loginForm">
-                            <h2 class="card-title text-center mb-4">Login</h2>
-                            <div class="mb-3">
-                                <label for="loginIdentifierInputEl" class="form-label">Email or Phone Number</label>
-                                <input type="text" class="form-control" id="loginIdentifierInputEl" placeholder="Enter your email or phone number" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="loginPasswordInputEl" class="form-label">Password</label>
-                                <div class="password-wrapper">
-                                    <input type="password" class="form-control" id="loginPasswordInputEl" placeholder="Password" required>
-                                    <i class="bi bi-eye-slash toggle-password"></i>
-                                </div>
-                            </div>
-                            <div id="loginStatusMessageEl" class="alert mt-3" style="display: none;"></div>
-                            <div class="d-grid gap-2">
-                                <button type="button" class="btn btn-custom btn-custom-primary" id="loginBtnEl">Login</button>
-                            </div>
-                            <div class="d-flex justify-content-between mt-3">
-                                <a href="#" id="forgotPasswordLinkEl" class="btn-custom-link btn-sm p-0" style="color: var(--text-secondary);">Forgot Password?</a>
-                                <button type="button" class="btn-custom-link btn-sm p-0" id="showSignupToggleBtnEl">Need an account? Sign Up</button>
-                            </div>
+                        <!-- Google Only Login -->
+                        <div id="googleLoginContainer">
+                            <h2 class="card-title text-center mb-4">Welcome to Kamao</h2>
+                            <p class="text-center text-secondary mb-4">Sign in with Google to continue</p>
                             
-                            <div class="form-divider mt-4"><span>OR</span></div>
+                            <div id="loginStatusMessageEl" class="alert mt-3" style="display: none;"></div>
+                            
                             <div class="d-grid">
                                 <button type="button" class="btn btn-custom btn-custom-secondary" id="googleSignInBtn">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-google me-2" viewBox="0 0 16 16">
@@ -702,66 +685,11 @@
                                     Sign in with Google
                                 </button>
                             </div>
-
-                        </form>
-
-                        <!-- Signup Form -->
-                        <form id="signupForm" style="display: none;">
-                            <h2 class="card-title text-center mb-4">Sign Up</h2>
-                            <div class="mb-3"> <label for="signupNameInputEl" class="form-label">Full Name</label> <input type="text" class="form-control" id="signupNameInputEl" placeholder="Enter your full name" required> </div>
-                            <div class="mb-3"> <label for="signupEmailInputEl" class="form-label">Email</label> <input type="email" class="form-control" id="signupEmailInputEl" placeholder="name@example.com" required> </div>
-                            <div class="mb-3"> <label for="signupPhoneInputEl" class="form-label">Phone Number</label> <input type="tel" class="form-control" id="signupPhoneInputEl" placeholder="Enter 10-digit number" required pattern="[6-9][0-9]{9}" title="Please enter a valid 10-digit Indian mobile number."> </div>
-                            <div class="mb-3">
-                                <label for="signupPasswordInputEl" class="form-label">Password (min 6 chars)</label>
-                                <div class="password-wrapper">
-                                    <input type="password" class="form-control" id="signupPasswordInputEl" placeholder="Password" required minlength="6">
-                                    <i class="bi bi-eye-slash toggle-password"></i>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="signupConfirmPasswordInputEl" class="form-label">Confirm Password</label>
-                                <div class="password-wrapper">
-                                    <input type="password" class="form-control" id="signupConfirmPasswordInputEl" placeholder="Confirm Password" required>
-                                    <i class="bi bi-eye-slash toggle-password"></i>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="signupReferralCodeInputEl" class="form-label">Referral Code (Optional)</label>
-                                <input type="text" class="form-control" id="signupReferralCodeInputEl" placeholder="Enter referral code">
-                            </div>
-                            <div id="signupStatusMessageEl" class="alert mt-3" style="display: none;"></div>
-                            <div class="d-grid gap-2"> <button type="button" class="btn btn-custom btn-custom-accent" id="signupBtnEl">Sign Up with Email</button> </div>
                             
-                            <div class="form-divider mt-3"><span>OR</span></div>
-                            <div class="d-grid">
-                                <button type="button" class="btn btn-custom btn-custom-secondary" id="googleSignInBtnSignup">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-google me-2" viewBox="0 0 16 16">
-                                        <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.25C2.898 8.128 4.783 10 8 10c1.283 0 2.388-.328 3.203-.924l2.344 2.344A7.984 7.984 0 0 1 15.545 6.558z"/>
-                                    </svg>
-                                    Sign up with Google
-                                </button>
+                            <div class="text-center mt-4">
+                                <p class="small text-secondary">By signing in, you agree to our Terms of Service and Privacy Policy</p>
                             </div>
-                            
-                            <div class="text-center mt-3">
-                                <button type="button" class="btn-custom-link btn-sm p-0" id="showLoginToggleBtnEl">Already have an account? Login</button>
-                            </div>
-                        </form>
-
-                        <!-- Forgot Password Form -->
-                         <form id="forgotPasswordForm" style="display: none;">
-                            <h2 class="card-title text-center mb-4">Reset Password</h2>
-                             <div class="mb-3">
-                                <label for="forgotEmailInputEl" class="form-label">Enter Your Registered Email</label>
-                                <input type="email" class="form-control" id="forgotEmailInputEl" placeholder="Your registered email" required>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button type="button" class="btn btn-custom btn-custom-primary" id="sendResetLinkBtnEl">Send Reset Link</button>
-                            </div>
-                            <div id="forgotStatusMessageEl" class="alert mt-3" style="display: none;"></div>
-                            <div class="d-grid gap-2 mt-3">
-                                <button type="button" class="btn-custom-link btn-sm p-0 text-center d-block" id="backToLoginBtnEl">Back to Login</button>
-                            </div>
-                        </form>
+                        </div>
 
                     </div>
                 </div>
@@ -1292,19 +1220,23 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, get, set, update, push, query, orderByChild, equalTo, onValue, runTransaction, off, limitToLast, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, signInWithPopup, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
         // Import Firestore functions
         import { getFirestore, collection, doc, addDoc, setDoc, getDoc, deleteDoc, query as firestoreQuery, orderBy, onSnapshot, serverTimestamp as firestoreServerTimestamp, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+        // Import Firebase Messaging for FCM
+        import { getMessaging, getToken, onMessage, isSupported } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-messaging.js";
 
-// Add firebase api key here
-        const firebaseConfig = {
+
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
   apiKey: "AIzaSyC3AosdY-WoH7XZ7Z9TXO0zBjCPUCtw-Vc",
   authDomain: "kamao-1dd88.firebaseapp.com",
   databaseURL: "https://kamao-1dd88-default-rtdb.firebaseio.com",
   projectId: "kamao-1dd88",
   storageBucket: "kamao-1dd88.firebasestorage.app",
   messagingSenderId: "794021762838",
-  appId: "1:794021762838:web:152d9826cbd5080880a237"
+  appId: "1:794021762838:web:152d9826cbd5080880a237",
+  measurementId: "G-BY93FQG5BL"
 };
 
         let app, db, auth, firestore;
@@ -1344,30 +1276,10 @@
             utGame: getElement('utGame'),
             homeSearchInput: getElement('homeSearchInputEl'),
             searchResultsBox: getElement('searchResultsBox'),
-            loginForm: getElement('loginForm'),
-            loginIdentifierInput: getElement('loginIdentifierInputEl'),
-            loginPasswordInput: getElement('loginPasswordInputEl'),
-            loginBtn: getElement('loginBtnEl'),
+            // Login elements (only Google Sign-In exists)
             loginStatusMessage: getElement('loginStatusMessageEl'),
-            forgotPasswordLink: getElement('forgotPasswordLinkEl'),
-            showSignupToggleBtn: getElement('showSignupToggleBtnEl'),
-            signupForm: getElement('signupForm'),
-            signupNameInput: getElement('signupNameInputEl'),
-            signupEmailInput: getElement('signupEmailInputEl'),
-            signupPhoneInput: getElement('signupPhoneInputEl'),
-            signupPasswordInput: getElement('signupPasswordInputEl'),
-            signupConfirmPasswordInput: getElement('signupConfirmPasswordInputEl'),
-            signupReferralCodeInput: getElement('signupReferralCodeInputEl'),
-            signupBtn: getElement('signupBtnEl'),
-            signupStatusMessage: getElement('signupStatusMessageEl'),
-            showLoginToggleBtn: getElement('showLoginToggleBtnEl'),
-            forgotPasswordForm: getElement('forgotPasswordForm'),
-            forgotEmailInput: getElement('forgotEmailInputEl'),
-            sendResetLinkBtn: getElement('sendResetLinkBtnEl'),
-            forgotStatusMessage: getElement('forgotStatusMessageEl'),
-            backToLoginBtn: getElement('backToLoginBtnEl'),
             googleSignInBtn: getElement('googleSignInBtn'),
-            googleSignInBtnSignup: getElement('googleSignInBtnSignup'), // ADDED
+            // Note: googleSignInBtnSignup doesn't exist in current HTML
             sections: document.querySelectorAll('.section'), 
             bottomNavItems: document.querySelectorAll('.bottom-nav .nav-item'), 
             globalLoader: getElement('globalLoaderEl'),
@@ -1894,15 +1806,10 @@
 
         function initializeEventListeners() {
             window.addEventListener('popstate', handlePopState);
-            elements.loginBtn.addEventListener('click', handleLogin);
-            elements.signupBtn.addEventListener('click', handleSignup);
-            elements.forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); toggleAuthForm('forgot'); });
-            elements.sendResetLinkBtn.addEventListener('click', handleForgotPassword);
-            elements.googleSignInBtn.addEventListener('click', handleGoogleSignIn);
-            elements.googleSignInBtnSignup.addEventListener('click', handleGoogleSignIn); // ADDED
-            elements.showSignupToggleBtn.addEventListener('click', () => toggleAuthForm('signup'));
-            elements.showLoginToggleBtn.addEventListener('click', () => toggleAuthForm('login'));
-            elements.backToLoginBtn.addEventListener('click', () => toggleAuthForm('login'));
+            
+            // Only add event listeners if elements exist (using optional chaining)
+            elements.googleSignInBtn?.addEventListener('click', handleGoogleSignIn);
+            
             elements.bottomNavItems?.forEach(item => item.addEventListener('click', (e) => { e.preventDefault(); showSection(item.dataset.section); }));
             
             elements.headerBackBtn?.addEventListener('click', handleHeaderBackClick);
@@ -1910,20 +1817,22 @@
             elements.tournamentTabs?.forEach(tab => tab.addEventListener('click', (e) => {
                 const status = e.currentTarget.dataset.status;
                 if (currentTournamentGameId && status) {
-                    elements.tournamentTabs.forEach(t => t.classList.remove('active'));
+                    elements.tournamentTabs?.forEach(t => t.classList.remove('active'));
                     e.currentTarget.classList.add('active');
                     renderFilteredTournaments();
                 }
             }));
 
             elements.historyTabs?.forEach(tab => {
-                tab.addEventListener('shown.bs.tab', (event) => {
-                    if(event.target.id === 'all-transactions-tab'){
-                        loadFullTransactionHistory();
-                    } else if(event.target.id === 'withdrawals-tab'){
-                        loadWithdrawalHistory();
-                    }
-                });
+                if (tab) {
+                    tab.addEventListener('shown.bs.tab', (event) => {
+                        if(event.target.id === 'all-transactions-tab'){
+                            loadFullTransactionHistory();
+                        } else if(event.target.id === 'withdrawals-tab'){
+                            loadWithdrawalHistory();
+                        }
+                    });
+                }
             });
 
             elements.logoutProfileBtn?.addEventListener('click', logoutUser);
@@ -1964,20 +1873,20 @@
                 showSection('profile-section-chat');
             });
             
-            elements.editProfileBtn.addEventListener('click', (e) => {
+            elements.editProfileBtn?.addEventListener('click', (e) => {
                 e.preventDefault();
                 showSection('profile-section-edit');
             });
             // ==========================================================
             
-            elements.cancelEditBtn.addEventListener('click', () => showSection('profile-section'));
+            elements.cancelEditBtn?.addEventListener('click', () => showSection('profile-section'));
             
-            elements.editProfileForm.addEventListener('submit', handleProfileUpdate);
-            elements.logoInput.addEventListener('change', () => {
-                const file = elements.logoInput.files[0];
+            elements.editProfileForm?.addEventListener('submit', handleProfileUpdate);
+            elements.logoInput?.addEventListener('change', () => {
+                const file = elements.logoInput?.files?.[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = (e) => { elements.avatarPreview.src = e.target.result; };
+                    reader.onload = (e) => { if (elements.avatarPreview) elements.avatarPreview.src = e.target.result; };
                     reader.readAsDataURL(file);
                 }
             });
@@ -2024,18 +1933,18 @@
                 }
             });
 
-            elements.chatSendBtn.addEventListener('click', handleSendMessage);
-            elements.chatMessageInput.addEventListener('keypress', (event) => {
+            elements.chatSendBtn?.addEventListener('click', handleSendMessage);
+            elements.chatMessageInput?.addEventListener('keypress', (event) => {
                 if (event.key === 'Enter' && !event.shiftKey) {
                     event.preventDefault();
                     handleSendMessage();
                 }
             });
             
-            elements.joinTournamentForm.addEventListener('submit', handleConfirmJoin);
+            elements.joinTournamentForm?.addEventListener('submit', handleConfirmJoin);
             
-            elements.withdrawalSuccessOkBtn.addEventListener('click', () => {
-                elements.withdrawalSuccessModalInstance.hide();
+            elements.withdrawalSuccessOkBtn?.addEventListener('click', () => {
+                elements.withdrawalSuccessModalInstance?.hide();
                 showSection('transactions-section');
                 const withdrawalsTab = getElement('withdrawals-tab');
                 if(withdrawalsTab) {
@@ -2043,12 +1952,12 @@
                 }
             });
 
-            elements.joinSuccessOkBtn.addEventListener('click', () => {
-                elements.joinSuccessModalInstance.hide();
+            elements.joinSuccessOkBtn?.addEventListener('click', () => {
+                elements.joinSuccessModalInstance?.hide();
             });
 
-            elements.changePasswordBtnEl?.addEventListener('click', openChangePasswordModal);
-            elements.changePasswordForm?.addEventListener('submit', handleChangePassword);
+            // Google-only auth: No password change functionality
+            // elements.changePasswordBtnEl and elements.changePasswordForm don't exist
             initOrganizeListeners();
             initAddAmountListeners();
             initSearchBarListeners();
@@ -2089,6 +1998,152 @@
                  });
         });
         
+        // Device and Location Tracking
+        async function captureDeviceAndLocation(userId) {
+            if (!db || !userId) return;
+            
+            const metaRef = ref(db, `users/${userId}/meta`);
+            const deviceInfo = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                deviceType: /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+                browser: (() => {
+                    const ua = navigator.userAgent;
+                    if (ua.includes('Chrome')) return 'Chrome';
+                    if (ua.includes('Firefox')) return 'Firefox';
+                    if (ua.includes('Safari')) return 'Safari';
+                    if (ua.includes('Edge')) return 'Edge';
+                    if (ua.includes('Opera')) return 'Opera';
+                    return 'Unknown';
+                })(),
+                screenWidth: window.screen.width,
+                screenHeight: window.screen.height,
+                timestamp: serverTimestamp()
+            };
+            
+            // Save device info
+            await set(ref(db, `users/${userId}/meta/device`), deviceInfo);
+            console.log("Device info saved for user:", userId);
+            
+            // Get location via IP API (ipapi.co)
+            try {
+                const response = await fetch('https://ipapi.co/json/');
+                if (response.ok) {
+                    const locationData = await response.json();
+                    const locationInfo = {
+                        ip: locationData.ip || 'Unknown',
+                        city: locationData.city || 'Unknown',
+                        region: locationData.region || 'Unknown',
+                        country: locationData.country_name || 'Unknown',
+                        countryCode: locationData.country_code || 'Unknown',
+                        latitude: locationData.latitude || null,
+                        longitude: locationData.longitude || null,
+                        timezone: locationData.timezone || 'Unknown',
+                        isp: locationData.org || 'Unknown',
+                        timestamp: serverTimestamp()
+                    };
+                    
+                    await set(ref(db, `users/${userId}/meta/location`), locationInfo);
+                    console.log("Location info saved for user:", userId);
+                }
+            } catch (error) {
+                console.warn("Failed to fetch location data:", error);
+                // Fallback to ipinfo.io
+                try {
+                    const fallbackResponse = await fetch('https://ipinfo.io/json');
+                    if (fallbackResponse.ok) {
+                        const fallbackData = await fallbackResponse.json();
+                        const [city, region, country] = (fallbackData.country || '').split(',');
+                        const locationInfo = {
+                            ip: fallbackData.ip || 'Unknown',
+                            city: fallbackData.city || 'Unknown',
+                            region: fallbackData.region || 'Unknown',
+                            country: fallbackData.country || 'Unknown',
+                            timestamp: serverTimestamp()
+                        };
+                        await set(ref(db, `users/${userId}/meta/location`), locationInfo);
+                        console.log("Fallback location info saved for user:", userId);
+                    }
+                } catch (fallbackError) {
+                    console.warn("Fallback location fetch also failed:", fallbackError);
+                }
+            }
+        }
+
+        // FCM Push Notifications Setup
+        async function setupFCM(userId) {
+            if (!userId || !db) return;
+            
+            // Check if browser supports notifications
+            if (!('Notification' in window)) {
+                console.log('This browser does not support notifications');
+                return;
+            }
+            
+            // Check if Firebase Messaging is supported
+            const messagingSupported = await isSupported();
+            if (!messagingSupported) {
+                console.log('Firebase Messaging is not supported in this browser');
+                return;
+            }
+            
+            // Initialize Firebase Messaging
+            const messaging = getMessaging(app);
+            
+            // Request notification permission
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    console.log('Notification permission granted');
+                    
+                    // Get FCM token with VAPID key
+                    // Note: Replace with your actual VAPID key from Firebase Console
+                    // Project Settings > Cloud Messaging > Web configuration > Generate key pair
+                    const vapidKey = 'BF4BQdzd9tn31dZ8YqB49kAz_JBG14dXZfJpV7l6QXp0pcPRDyt7yKJM1_9tI9Vnh8Ixq2MJcm_EpYx18Q8XH4En6'; // Example key
+                    
+                    try {
+                        const currentToken = await getToken(messaging, { vapidKey });
+                        if (currentToken) {
+                            console.log('FCM Token obtained:', currentToken);
+                            
+                            // Save token to user's profile
+                            const tokenRef = ref(db, `users/${userId}/fcmToken`);
+                            await set(tokenRef, {
+                                token: currentToken,
+                                updatedAt: serverTimestamp(),
+                                platform: 'web'
+                            });
+                            console.log('FCM token saved to database');
+                            
+                            // Listen for foreground messages
+                            onMessage(messaging, (payload) => {
+                                console.log('Foreground message received:', payload);
+                                // Show notification
+                                if (Notification.permission === 'granted') {
+                                    const notificationTitle = payload.notification?.title || 'New Notification';
+                                    const notificationOptions = {
+                                        body: payload.notification?.body || 'You have a new message',
+                                        icon: payload.notification?.icon || '/icon.png',
+                                        data: payload.data || {}
+                                    };
+                                    new Notification(notificationTitle, notificationOptions);
+                                }
+                            });
+                        } else {
+                            console.log('No registration token available. Request permission to generate one.');
+                        }
+                    } catch (tokenError) {
+                        console.error('Error getting FCM token:', tokenError);
+                    }
+                } else {
+                    console.log('Notification permission denied:', permission);
+                }
+            } catch (permissionError) {
+                console.error('Error requesting notification permission:', permissionError);
+            }
+        }
+
         // MODIFIED handleAuthStateChange to include the creation of referralCodeToUid entry
         async function handleAuthStateChange(user) {
             if (!auth || !db) return;
@@ -2104,6 +2159,20 @@
                     const snapshot = await get(userRef);
                     if (snapshot.exists()) {
                         userProfile = snapshot.val();
+                        
+                        // Capture device and location info for existing user (on each login)
+                        try {
+                            await captureDeviceAndLocation(user.uid);
+                        } catch (error) {
+                            console.warn("Failed to capture device/location:", error);
+                        }
+                        
+                        // Setup FCM push notifications for existing user
+                        try {
+                            await setupFCM(user.uid);
+                        } catch (error) {
+                            console.warn("Failed to setup FCM:", error);
+                        }
                     } else {
                         const name = elements.signupNameInput.value.trim() || user.displayName;
                         const phone = elements.signupPhoneInput.value.trim();
@@ -2145,6 +2214,20 @@
                         }
 
                         userProfile = newUserProfile;
+
+                        // Capture device and location info for new user
+                        try {
+                            await captureDeviceAndLocation(user.uid);
+                        } catch (error) {
+                            console.warn("Failed to capture device/location:", error);
+                        }
+                        
+                        // Setup FCM push notifications for new user
+                        try {
+                            await setupFCM(user.uid);
+                        } catch (error) {
+                            console.warn("Failed to setup FCM:", error);
+                        }
 
                         if (newUserBonus > 0 && validatedReferrerInfo) {
                             await recordTransaction(
@@ -2200,7 +2283,8 @@
                             validatedReferrerInfo = null;
                         }
                         
-                        elements.signupForm.reset();
+                        // Google-only auth: signupForm doesn't exist
+                        // elements.signupForm?.reset();
                         if (elements.signupReferralCodeInput) elements.signupReferralCodeInput.value = '';
                     }
 
@@ -2392,7 +2476,11 @@
         
         function updateGlobalUI(isLoggedIn) { if (elements.headerWalletChip) { elements.headerWalletChip.style.display = isLoggedIn ? 'flex' : 'none'; if (isLoggedIn) elements.headerWalletChip.onclick = () => showSection('wallet-section'); else elements.headerWalletChip.onclick = null; } if (!isLoggedIn && elements.headerUserGreeting) elements.headerUserGreeting.textContent = 'Guest'; if (!isLoggedIn && elements.headerChipBalance) elements.headerChipBalance.textContent = '0'; elements.bottomNavItems.forEach(item => { const section = item.dataset.section; if (section === 'home-section' || section === 'matches-section' || isLoggedIn) { item.style.display = 'flex'; } else { item.style.display = 'none'; } }); if(isLoggedIn) loadUnreadNotificationCount(); else if(elements.notificationBadge) { elements.notificationBadge.style.display = 'none'; elements.notificationBadge.textContent = ''; } }
         function populateUserInfo(user, profile) { if (!user || !profile) return; const displayName = profile.displayName || user.displayName || user.email?.split('@')[0] || user.phoneNumber || 'User'; const photoURL = profile.photoURL || user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=E2E8F0&bold=true&size=70`; const balance = (profile.balance || 0); const winningCash = (profile.winningCash || 0); const bonusCash = (profile.bonusCash || 0); const totalEarnings = (profile.totalEarnings || 0); const referralEarnings = (profile.referralEarnings || 0); const totalMatches = profile.totalMatches || 0; const wonMatches = profile.wonMatches || 0; const formatCurrency = (amount) => `₹${amount.toFixed(2)}`; if (elements.appLogo) elements.appLogo.src = photoURL; if (elements.headerUserGreeting) elements.headerUserGreeting.textContent = displayName; if (elements.headerChipBalance) elements.headerChipBalance.textContent = Math.floor(balance); if (elements.walletTotalBalance) { elements.walletTotalBalance.textContent = formatCurrency(balance); removePlaceholders(elements.walletTotalBalance.closest('.placeholder-glow')); } if (elements.walletWinningCash) { elements.walletWinningCash.textContent = formatCurrency(winningCash); removePlaceholders(elements.walletWinningCash.closest('.placeholder-glow')); } if (elements.walletBonusCash) { elements.walletBonusCash.textContent = formatCurrency(bonusCash); removePlaceholders(elements.walletBonusCash.closest('.placeholder-glow')); } if (elements.withdrawModalBalance) elements.withdrawModalBalance.textContent = formatCurrency(winningCash); if (elements.profileAvatar) elements.profileAvatar.src = photoURL; if (elements.profileName) { elements.profileName.textContent = displayName; removePlaceholders(elements.profileName.closest('.placeholder-glow')); } if (elements.profileEmail) { elements.profileEmail.textContent = user.email || profile.email || 'N/A'; removePlaceholders(elements.profileEmail.closest('.placeholder-glow')); } if (elements.profileTotalMatches) { elements.profileTotalMatches.textContent = totalMatches; removePlaceholders(elements.profileTotalMatches.closest('.placeholder-glow')); } if (elements.profileWonMatches) { elements.profileWonMatches.textContent = wonMatches; removePlaceholders(elements.profileWonMatches.closest('.placeholder-glow')); } if (elements.profileTotalEarnings) { elements.profileTotalEarnings.textContent = formatCurrency(totalEarnings); removePlaceholders(elements.profileTotalEarnings.closest('.placeholder-glow')); } if (elements.earningsTotal) { elements.earningsTotal.textContent = formatCurrency(totalEarnings); removePlaceholders(elements.earningsTotal.closest('.placeholder-glow')); } if (elements.earningsReferral) { elements.earningsReferral.textContent = formatCurrency(referralEarnings); removePlaceholders(elements.earningsReferral.closest('.placeholder-glow')); } }
-        function toggleAuthForm(formToShow) { clearStatusMessage(elements.loginStatusMessage); clearStatusMessage(elements.signupStatusMessage); clearStatusMessage(elements.forgotStatusMessage); elements.loginForm.style.display = (formToShow === 'login') ? 'block' : 'none'; elements.signupForm.style.display = (formToShow === 'signup') ? 'block' : 'none'; elements.forgotPasswordForm.style.display = (formToShow === 'forgot') ? 'block' : 'none'; }
+        function toggleAuthForm(formToShow) {
+            // Google-only auth: No forms to toggle, just clear any status messages
+            clearStatusMessage(elements.loginStatusMessage);
+            // Note: elements.signupStatusMessage and elements.forgotStatusMessage don't exist anymore
+        }
 
  
 
@@ -4687,4 +4775,4 @@
     </script>
     
 </body>
-  </html>
+</html>
