@@ -3755,6 +3755,19 @@ const firebaseConfig = {
             if(txnId.length<4){errEl.textContent='Please enter a valid Transaction ID.';errEl.style.display='block';return;}
             if(!upiUsed.includes('@')){errEl.textContent='Please enter the UPI ID you used.';errEl.style.display='block';return;}
             if(!ssFiles||!ssFiles[0]){errEl.textContent='Please attach your payment screenshot.';errEl.style.display='block';return;}
+            // Validate file is an image
+            var file = ssFiles[0];
+            if (!file.type.startsWith('image/')) {
+                errEl.textContent = 'Please upload only image files (JPG, PNG, etc.). Video or text files are not allowed.';
+                errEl.style.display = 'block';
+                return;
+            }
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                errEl.textContent = 'File size too large. Please upload an image smaller than 5MB.';
+                errEl.style.display = 'block';
+                return;
+            }
             errEl.style.display='none';
             var btn=document.getElementById('submitPaymentProofBtn');
             btn.disabled=true;btn.textContent='Submitting...';
