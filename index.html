@@ -2174,8 +2174,8 @@ const firebaseConfig = {
                             console.warn("Failed to setup FCM:", error);
                         }
                     } else {
-                        const name = elements.signupNameInput.value.trim() || user.displayName;
-                        const phone = elements.signupPhoneInput.value.trim();
+                        const name = user.displayName || 'New User';
+                        const phone = '';
                         
                         let newUserBonus = 0;
                         if (validatedReferrerInfo && appSettings.referralBonus && appSettings.referralBonus > 0) {
