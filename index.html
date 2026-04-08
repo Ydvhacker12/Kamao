@@ -2088,6 +2088,18 @@ const firebaseConfig = {
                 return;
             }
             
+            // Check if service worker file exists (avoid 404 error)
+            try {
+                const swResponse = await fetch('/firebase-messaging-sw.js');
+                if (!swResponse.ok) {
+                    console.warn('FCM service worker file not found, skipping FCM setup');
+                    return;
+                }
+            } catch (swError) {
+                console.warn('Cannot fetch service worker, skipping FCM setup:', swError);
+                return;
+            }
+            
             // Initialize Firebase Messaging
             const messaging = getMessaging(app);
             
