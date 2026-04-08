@@ -1,0 +1,23 @@
+{
+  "background_color": "#0f172a",
+  "dir": "ltr",
+  "display": "fullscreen",
+  "name": "Kamao",
+  "orientation": "portrait",
+  "scope": "https://kamao-ozx2.onrender.com",
+  "short_name": "kamao-ozx2.onrender",
+  "start_url": "https://kamao-ozx2.onrender.com",
+  "theme_color": "#3b82f6",
+  "categories": [
+    "finance",
+    "games"
+  ],
+  "id": "Kamao_official",
+  "description": "A eSports tournament organizing platform",
+  "lang": "en",
+  "display_override": [
+    "window-controls-overlay",
+    "fullscreen"
+  ],
+  "prefer_related_applications": false
+}
