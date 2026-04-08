@@ -1,6 +1,7 @@
 {
   "rules": {
     "users": {
+      ".read": "auth != null",
       "$uid": {
         ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() == true)",
         ".write": "auth != null && auth.uid == $uid",
@@ -112,6 +113,17 @@
       }
     },
     
+    "transactions": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        
+        "$transactionId": {
+          ".validate": "newData.hasChildren(['type', 'amount', 'description', 'timestamp']) && newData.child('amount').isNumber()"
+        }
+      }
+    },
+    
     "withdrawals": {
       "$withdrawalId": {
         ".read": "auth != null && (root.child('withdrawals').child($withdrawalId).child('userId').val() == auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() == true)",
@@ -149,6 +161,7 @@
     },
     
     "notifications": {
+      ".read": "auth != null",
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
         ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() == true)",
@@ -174,6 +187,7 @@
     },
     
     "games": {
+      ".read": true,
       "$gameId": {
         ".read": true,
         ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true",
@@ -183,6 +197,7 @@
     },
     
     "promotions": {
+      ".read": true,
       "$promotionId": {
         ".read": true,
         ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true",
