@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
-   <link rel="manifest" href="/manifest.json">
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <!-- Bootstrap CSS -->
@@ -1598,7 +1597,11 @@ const firebaseConfig = {
                 await deleteChatHistory();
             }
 
-            await updateChatMetadata({ userClosedChat: false, adminSeen: false });
+            // Only update metadata if it already exists (has previous messages)
+            // Don't create a new metadata document just by opening help center
+            if (metadataSnap.exists()) {
+                await updateChatMetadata({ userClosedChat: false, adminSeen: false });
+            }
 
             const messagesRef = collection(firestore, 'HelpCenter', currentUser.uid, 'messages');
             const q = firestoreQuery(messagesRef, orderBy('timestamp', 'asc'));
@@ -1661,10 +1664,16 @@ const firebaseConfig = {
             if (messageText === '') return;
 
             const messagesRef = collection(firestore, 'HelpCenter', currentUser.uid, 'messages');
+            const metadataRef = doc(firestore, 'HelpCenter', currentUser.uid);
             messageInput.disabled = true;
             try {
-                // First, ensure the chat is marked as active by the user
-                await updateChatMetadata({ userClosedChat: false });
+                // Update metadata with last message info and mark as active
+                await setDoc(metadataRef, {
+                    userClosedChat: false,
+                    lastMessage: messageText,
+                    lastMessageTimestamp: firestoreServerTimestamp(),
+                    adminSeen: false
+                }, { merge: true });
                 
                 // Send the user's message
                 await addDoc(messagesRef, {
@@ -1676,7 +1685,7 @@ const firebaseConfig = {
                 // Clear the input and trigger the auto-assistant logic
                 const userMessageForBot = messageText;
                 messageInput.value = '';
-                triggerAutoAssistant(userMessageForBot); 
+                triggerAutoAssistant(userMessageForBot);
 
             } catch (error) {
                 console.error("Error sending message:", error);
@@ -2186,6 +2195,14 @@ const firebaseConfig = {
                         } catch (error) {
                             console.warn("Failed to setup FCM:", error);
                         }
+                        
+                        // Update lastActive timestamp
+                        try {
+                            const lastActiveRef = ref(db, `users/${user.uid}/lastActive`);
+                            await set(lastActiveRef, serverTimestamp());
+                        } catch (error) {
+                            console.warn("Failed to update lastActive:", error);
+                        }
                     } else {
                         const name = user.displayName || 'New User';
                         const phone = '';
@@ -2203,6 +2220,7 @@ const firebaseConfig = {
                             phone: phone,
                             photoURL: user.photoURL || '',
                             createdAt: serverTimestamp(),
+                            lastActive: serverTimestamp(),
                             balance: 0,
                             winningCash: 0,
                             bonusCash: newUserBonus,
@@ -3136,6 +3154,21 @@ const firebaseConfig = {
                 }
             });
             dbListeners['notifications'] = { path: notifRef, func: notifListener };
+            
+            // Start periodic lastActive updates (every 60 seconds)
+            if (window.lastActiveInterval) {
+                clearInterval(window.lastActiveInterval);
+            }
+            window.lastActiveInterval = setInterval(async () => {
+                if (currentUser && currentUser.uid === uid && db) {
+                    try {
+                        const lastActiveRef = ref(db, `users/${uid}/lastActive`);
+                        await set(lastActiveRef, serverTimestamp());
+                    } catch (error) {
+                        console.warn("Failed to update lastActive:", error);
+                    }
+                }
+            }, 60000); // 60 seconds
         }
         
         function detachAllDbListeners() { 
