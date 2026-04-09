@@ -1124,8 +1124,8 @@
     <div class="modal fade" id="notificationModalEl" tabindex="-1"><div class="modal-dialog modal-dialog-scrollable modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="notificationModalTitleEl">Notifications</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body" id="notificationModalBodyEl" style="min-height: 300px;"></div></div></div></div>
 
     <!-- Join Tournament Modal -->
-    <div class="modal fade" id="joinTournamentModalEl" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
+    <div class="modal fade" id="joinTournamentModalEl" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" aria-modal="true" role="dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="joinTournamentModalTitleEl">Join Tournament</h5>
@@ -1159,8 +1159,8 @@
     </div>
     
     <!-- Withdrawal Success Confirmation Modal -->
-    <div class="modal fade" id="withdrawalSuccessModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+    <div class="modal fade" id="withdrawalSuccessModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" aria-modal="true" role="dialog">
             <div class="modal-content">
                 <div class="modal-body">
                     <div class="success-icon">
@@ -1180,8 +1180,8 @@
     </div>
 
     <!-- Join Tournament Success Modal -->
-    <div class="modal fade" id="joinSuccessModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+    <div class="modal fade" id="joinSuccessModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" aria-modal="true" role="dialog">
             <div class="modal-content">
                 <div class="modal-body">
                     <div class="success-icon" style="background: linear-gradient(135deg, #d1e7ff, #b6d4fa);">
@@ -3421,36 +3421,36 @@ const firebaseConfig = {
             let mainBalanceDeduction = 0;
 
             try {
-                await runTransaction(tournamentRef, (tournamentData) => {
-                    if (!tournamentData) throw new Error("Tournament not found or has been removed.");
-                    if (tournamentData.status !== 'upcoming') throw new Error("This tournament is no longer open for registration.");
-                    if (tournamentData.registeredPlayers && tournamentData.registeredPlayers[currentUser.uid]) throw new Error("You have already joined this tournament.");
-                    
-                    const existingPlayers = tournamentData.registeredPlayers || {};
-                    const occupiedSeatsInTx = new Set();
-                    Object.values(existingPlayers).forEach(p => {
-                        if (p.seat) {
-                            const start = p.seat;
-                            const size = p.teamSize || 1;
-                            for (let i = 0; i < size; i++) {
-                                occupiedSeatsInTx.add(start + i);
-                            }
-                        }
-                    });
-
-                    for (let i = 0; i < multiplier; i++) {
-                        if (occupiedSeatsInTx.has(selectedSeat + i)) {
-                            throw new Error(`Seat #${selectedSeat + i} was just taken. Please select another spot.`);
+                // Get tournament data and validate (replacing transaction with optimistic concurrency)
+                const tournamentSnapshot = await get(tournamentRef);
+                if (!tournamentSnapshot.exists()) throw new Error("Tournament not found or has been removed.");
+                
+                const tournamentData = tournamentSnapshot.val();
+                if (tournamentData.status !== 'upcoming') throw new Error("This tournament is no longer open for registration.");
+                if (tournamentData.registeredPlayers && tournamentData.registeredPlayers[currentUser.uid]) throw new Error("You have already joined this tournament.");
+                
+                const existingPlayers = tournamentData.registeredPlayers || {};
+                const occupiedSeats = new Set();
+                Object.values(existingPlayers).forEach(p => {
+                    if (p.seat) {
+                        const start = p.seat;
+                        const size = p.teamSize || 1;
+                        for (let i = 0; i < size; i++) {
+                            occupiedSeats.add(start + i);
                         }
                     }
-
-                    const currentPlayersCount = Array.from(occupiedSeatsInTx).length;
-                    if (tournamentData.maxPlayers > 0 && (currentPlayersCount + multiplier > tournamentData.maxPlayers)) {
-                        throw new Error("The tournament is full or does not have enough space for your team.");
-                    }
-                    
-                    return tournamentData;
                 });
+
+                for (let i = 0; i < multiplier; i++) {
+                    if (occupiedSeats.has(selectedSeat + i)) {
+                        throw new Error(`Seat #${selectedSeat + i} is already occupied. Please select another spot.`);
+                    }
+                }
+
+                const currentPlayersCount = Array.from(occupiedSeats).length;
+                if (tournamentData.maxPlayers > 0 && (currentPlayersCount + multiplier > tournamentData.maxPlayers)) {
+                    throw new Error("The tournament is full or does not have enough space for your team.");
+                }
                 
                 await runTransaction(userRef, (profileData) => {
                     if (!profileData) throw new Error("User profile not found.");
