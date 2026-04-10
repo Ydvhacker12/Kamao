@@ -8,7 +8,10 @@
   "short_name": "Kamao",
   "start_url": "https://kamao-ozx2.onrender.com",
   "theme_color": "#3b82f6",
-  "categories": ["finance", "games"],
+  "categories": [
+    "finance",
+    "games"
+  ],
   "id": "Kamao_official",
   "description": "A eSports tournament organizing platform",
   "lang": "en",
