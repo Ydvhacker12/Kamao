@@ -901,10 +901,6 @@
                             <span><i class="fa-solid fa-user-pen"></i> Edit Profile</span>
                             <i class="fa-solid fa-chevron-right"></i>
                         </a>
-                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center interactive-list-item" id="changePasswordBtnEl">
-                            <span><i class="fa-solid fa-key"></i> Change Password</span>
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </a>
                         <label class="list-group-item list-group-item-action d-flex justify-content-between align-items-center interactive-list-item">
                             <span><i class="fa-solid fa-bell"></i> Notifications</span>
                             <div class="form-check form-switch">
@@ -1002,37 +998,6 @@
 
         </section>
 
-        <!-- MODAL FOR CHANGING PASSWORD (ADD THIS) -->
-        <div class="modal fade" id="changePasswordModalEl" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Change Password</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="changePasswordForm">
-                            <div class="mb-3">
-                                <label for="oldPasswordInputEl" class="form-label">Old Password</label>
-                                <input type="password" class="form-control" id="oldPasswordInputEl" placeholder="Enter your current password" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="newPasswordInputEl" class="form-label">New Password</label>
-                                <input type="password" class="form-control" id="newPasswordInputEl" placeholder="Enter new password (min. 6 characters)" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="confirmPasswordInputEl" class="form-label">Confirm New Password</label>
-                                <input type="password" class="form-control" id="confirmPasswordInputEl" placeholder="Confirm your new password" required>
-                            </div>
-                            <div id="changePasswordStatusMessageEl" class="alert" style="display: none;"></div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-custom btn-custom-primary" id="updatePasswordBtnEl">Update Password</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
     </main>
     
     <!-- Toast Notification -->
@@ -1401,13 +1366,6 @@ const firebaseConfig = {
             confirmJoinBtn: getElement('confirmJoinBtnEl'),
             joinSuccessModalInstance: getElement('joinSuccessModal') ? new bootstrap.Modal(getElement('joinSuccessModal'), { backdrop: 'static', keyboard: false }) : null,
             joinSuccessOkBtn: getElement('joinSuccessOkBtn'),
-            changePasswordBtnEl: getElement('changePasswordBtnEl'),
-            changePasswordModalInstance: getElement('changePasswordModalEl') ? new bootstrap.Modal(getElement('changePasswordModalEl')) : null,
-            changePasswordForm: getElement('changePasswordForm'),
-            oldPasswordInputEl: getElement('oldPasswordInputEl'),
-            newPasswordInputEl: getElement('newPasswordInputEl'),
-            confirmPasswordInputEl: getElement('confirmPasswordInputEl'),
-            changePasswordStatusMessageEl: getElement('changePasswordStatusMessageEl'),
         };
 
         let currentUser = null; 
@@ -2399,7 +2357,48 @@ const firebaseConfig = {
 
         async function handleProfileUpdate(event) { event.preventDefault(); if(!currentUser) return; const newName = elements.nameInput.value.trim(); const newLogoFile = elements.logoInput.files[0]; if(!newName) { showStatusMessage(elements.editProfileStatusMessage, "Name cannot be empty.", "warning"); return; } showLoader(true); const userRef = ref(db, `users/${currentUser.uid}`); const updates = { displayName: newName }; try { if (newLogoFile) { const dataUrl = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(newLogoFile); }); updates.photoURL = dataUrl; } await update(userRef, updates); showToast("Profile updated successfully!"); showSection('profile-section'); } catch (error) { console.error("Profile update error:", error); showStatusMessage(elements.editProfileStatusMessage, "Failed to update profile. Please try again.", "danger"); } finally { showLoader(false); } }
 
-        async function loadAppSettings() { try { const settingsRef = ref(db, 'settings'); const snapshot = await get(settingsRef); if (snapshot.exists()) { appSettings = snapshot.val() || {}; if (appSettings.logoUrl && elements.appLogo) elements.appLogo.src = appSettings.logoUrl; if (appSettings.minWithdraw) { if (elements.minWithdrawAmountUpi) elements.minWithdrawAmountUpi.textContent = appSettings.minWithdraw; if (elements.minWithdrawAmountBank) elements.minWithdrawAmountBank.textContent = appSettings.minWithdraw; } } else { console.warn("App Settings not found!"); appSettings = {}; } } catch (e) { console.error("Could not load App Settings:", e); appSettings = {}; } }
+        async function loadAppSettings() { try { const settingsRef = ref(db, 'settings'); const snapshot = await get(settingsRef); if (snapshot.exists()) { appSettings = snapshot.val() || {}; if (appSettings.logoUrl && elements.appLogo) elements.appLogo.src = appSettings.logoUrl; if (appSettings.minWithdraw) { if (elements.minWithdrawAmountUpi) elements.minWithdrawAmountUpi.textContent = appSettings.minWithdraw; if (elements.minWithdrawAmountBank) elements.minWithdrawAmountBank.textContent = appSettings.minWithdraw; } updateDepositModalUI(); } else { console.warn("App Settings not found!"); appSettings = {}; } } catch (e) { console.error("Could not load App Settings:", e); appSettings = {}; } }
+
+        function updateDepositModalUI() {
+            var minDeposit = appSettings.minDeposit || 10;
+            var maxDeposit = appSettings.maxDeposit || 500;
+            
+            // Update custom amount input min attribute and placeholder text
+            var customInput = document.getElementById('customAmountInput');
+            if (customInput) {
+                customInput.min = minDeposit;
+                customInput.placeholder = 'Enter amount (Min ₹' + minDeposit + ')';
+                // Update value if it's currently less than min
+                var currentVal = parseFloat(customInput.value);
+                if (isNaN(currentVal) || currentVal < minDeposit) {
+                    customInput.value = minDeposit;
+                }
+            }
+            
+            // Update the "Or enter custom amount (Min ₹10):" text
+            var customAmountLabel = document.querySelector('.custom-amount-section p.text-secondary');
+            if (customAmountLabel) {
+                customAmountLabel.textContent = 'Or enter custom amount (Min ₹' + minDeposit + '):';
+            }
+            
+            // Update the "Minimum deposit: ₹10" text
+            var minDepositText = document.querySelector('.custom-amount-section .text-secondary.small');
+            if (minDepositText && minDepositText.nextElementSibling && minDepositText.nextElementSibling.id === 'customAmountError') {
+                // This is the element right before the error div
+                minDepositText.textContent = 'Minimum deposit: ₹' + minDeposit;
+            }
+            
+            // Update preset amount buttons if needed (e.g., hide buttons above max deposit)
+            var amountButtons = document.querySelectorAll('#addAmountOptionsEl .amount-btn');
+            amountButtons.forEach(function(btn) {
+                var amount = parseFloat(btn.dataset.amount || 0);
+                if (amount > maxDeposit) {
+                    btn.style.display = 'none';
+                } else {
+                    btn.style.display = '';
+                }
+            });
+        }
 
 
         function loadHomePageData() { 
@@ -3190,6 +3189,7 @@ const firebaseConfig = {
         
         function handleAddAmountClick() {
             if (!currentUser) { alert("Login first."); showSection('login-section'); return; }
+            updateDepositModalUI();
             if (elements.addAmountModalInstance) { resetAddAmountModal(); elements.addAmountModalInstance.show(); }
         }
         function handleWithdrawClick() { 
@@ -3403,6 +3403,19 @@ const firebaseConfig = {
                     showStatusMessage(elements.joinTournamentStatusMessage, `Please fill all details for Player ${i}.`, "warning");
                     return;
                 }
+                
+                // Validate game UID: must be exactly 10 digits
+                if (!/^\d{10}$/.test(gameUid)) {
+                    showStatusMessage(elements.joinTournamentStatusMessage, `Player ${i}: Game UID must be exactly 10 digits.`, "warning");
+                    return;
+                }
+                
+                // Validate game name: non-empty and reasonable length (3-30 characters)
+                if (gameName.length < 3 || gameName.length > 30) {
+                    showStatusMessage(elements.joinTournamentStatusMessage, `Player ${i}: Game name must be between 3 and 30 characters.`, "warning");
+                    return;
+                }
+                
                 teamPlayers.push({ gameUid, gameName });
             }
 
@@ -3678,7 +3691,8 @@ const firebaseConfig = {
             // Reset custom amount input
             var customInput = document.getElementById('customAmountInput');
             if(customInput) {
-                customInput.value = '10';
+                var minDeposit = appSettings.minDeposit || 10;
+                customInput.value = minDeposit.toString();
                 customInput.style.borderColor = '';
                 customInput.style.boxShadow = '';
             }
@@ -3724,7 +3738,16 @@ const firebaseConfig = {
             // Preset amount button clicks
             if(opts) opts.querySelectorAll('button').forEach(function(btn){
                 btn.addEventListener('click',function(){
-                    updateSelectedAmount(parseFloat(btn.dataset.amount||0), false);
+                    var amount = parseFloat(btn.dataset.amount||0);
+                    var maxDeposit = appSettings.maxDeposit || 500;
+                    if (amount > maxDeposit) {
+                        if(customError) {
+                            customError.textContent = 'Selected amount (₹' + amount + ') exceeds maximum deposit limit of ₹' + maxDeposit;
+                            customError.style.display = 'block';
+                        }
+                        return;
+                    }
+                    updateSelectedAmount(amount, false);
                     btn.classList.add('selected');
                 });
             });
@@ -3733,9 +3756,19 @@ const firebaseConfig = {
             if(useCustomBtn && customInput) {
                 useCustomBtn.addEventListener('click',function(){
                     var customVal = parseFloat(customInput.value);
-                    if(isNaN(customVal) || customVal < 10) {
+                    var minDeposit = appSettings.minDeposit || 10;
+                    var maxDeposit = appSettings.maxDeposit || 500;
+                    if(isNaN(customVal) || customVal < minDeposit) {
                         if(customError) {
-                            customError.textContent = 'Please enter a valid amount (minimum ₹10)';
+                            customError.textContent = 'Please enter a valid amount (minimum ₹' + minDeposit + ')';
+                            customError.style.display = 'block';
+                        }
+                        return;
+                    }
+                    // Maximum deposit validation
+                    if(customVal > maxDeposit) {
+                        if(customError) {
+                            customError.textContent = 'Maximum deposit amount is ₹' + maxDeposit;
                             customError.style.display = 'block';
                         }
                         return;
@@ -3753,7 +3786,8 @@ const firebaseConfig = {
                 });
                 customInput.addEventListener('input',function(){
                     var val = parseFloat(this.value);
-                    if(!isNaN(val) && val >= 10 && customError) {
+                    var minDeposit = appSettings.minDeposit || 10;
+                    if(!isNaN(val) && val >= minDeposit && customError) {
                         customError.style.display = 'none';
                     }
                 });
@@ -3764,6 +3798,23 @@ const firebaseConfig = {
                 if(!_selAmt) {
                     if(customError) {
                         customError.textContent = 'Please select or enter an amount first';
+                        customError.style.display = 'block';
+                    }
+                    return;
+                }
+                // Validate amount is within limits
+                var minDeposit = appSettings.minDeposit || 10;
+                var maxDeposit = appSettings.maxDeposit || 500;
+                if(_selAmt < minDeposit) {
+                    if(customError) {
+                        customError.textContent = 'Minimum deposit amount is ₹' + minDeposit;
+                        customError.style.display = 'block';
+                    }
+                    return;
+                }
+                if(_selAmt > maxDeposit) {
+                    if(customError) {
+                        customError.textContent = 'Maximum deposit amount is ₹' + maxDeposit;
                         customError.style.display = 'block';
                     }
                     return;
