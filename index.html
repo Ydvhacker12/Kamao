@@ -4328,6 +4328,20 @@ const firebaseConfig = {
             document.getElementById('userTournamentFormTitle').textContent=editId?'Edit Tournament':'Create Tournament';
             elements.userTournamentForm.reset();
             elements.userTournamentEditId.value=editId||'';
+            // Set default tournament rules from settings when creating new tournament
+            if (!editId && appSettings.defaultTournamentRules) {
+                document.getElementById('utDescription').value = appSettings.defaultTournamentRules;
+            }
+            // Make description field read-only based on rulesEditable setting
+            var descInput = document.getElementById('utDescription');
+            if (descInput) {
+                descInput.readOnly = !(appSettings.rulesEditable || false);
+                if (descInput.readOnly) {
+                    descInput.title = "Tournament rules are locked (editable: OFF)";
+                } else {
+                    descInput.title = "";
+                }
+            }
             document.getElementById('visPublicBtn').classList.add('active');
             document.getElementById('visPrivateBtn').classList.remove('active');
             document.getElementById('utVisibility').value='public';
@@ -4358,6 +4372,12 @@ const firebaseConfig = {
                         document.getElementById('utPerKill').value=t.perKillPrize||0;
                         document.getElementById('utMaxPlayers').value=t.maxPlayers||0;
                         document.getElementById('utDescription').value=t.description||'';
+                        // Make description field editable when editing (override global lock)
+                        var descInput = document.getElementById('utDescription');
+                        if (descInput) {
+                            descInput.readOnly = false;
+                            descInput.title = "Editing tournament - rules can be modified";
+                        }
                         document.getElementById('utSearchTags').value=t.searchTags||'';
                         document.getElementById('utVisibility').value=t.visibility||'public';
                         if(t.visibility==='private'){
