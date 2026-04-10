@@ -1,7 +1,7 @@
 const CACHE_NAME = "kamao-v1";
 
 const urlsToCache = [
-  "https://kamao-ozx2.onrender.com",
+  "/",
   "/index.html"
 ];
 
