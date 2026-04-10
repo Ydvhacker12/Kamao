@@ -5,31 +5,23 @@
   "name": "Kamao",
   "orientation": "portrait",
   "scope": "https://kamao-ozx2.onrender.com",
-  "short_name": "kamao-ozx2.onrender",
+  "short_name": "Kamao",
   "start_url": "https://kamao-ozx2.onrender.com",
   "theme_color": "#3b82f6",
-  "categories": [
-    "finance",
-    "games"
-  ],
+  "categories": ["finance", "games"],
   "id": "Kamao_official",
   "description": "A eSports tournament organizing platform",
   "lang": "en",
-  "display_override": [
-    "window-controls-overlay",
-    "fullscreen"
-  ],
-  "prefer_related_applications": false
-}, 
-"icons": [
-  {
-    "src": "/icon-192.png",
-    "sizes": "192x192",
-    "type": "image/png"
-  },
-  {
-    "src": "/icon-512.png",
-    "sizes": "512x512",
-    "type": "image/png"
-  }
-]
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
