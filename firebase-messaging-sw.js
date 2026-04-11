@@ -6,13 +6,14 @@ importScripts('https://www.gstatic.com/firebasejs/10.0.0/firebase-messaging-comp
 
 // Your Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyA2Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q",
+  apiKey: "AIzaSyC3AosdY-WoH7XZ7Z9TXO0zBjCPUCtw-Vc",
   authDomain: "kamao-1dd88.firebaseapp.com",
+  databaseURL: "https://kamao-1dd88-default-rtdb.firebaseio.com",
   projectId: "kamao-1dd88",
-  storageBucket: "kamao-1dd88.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef1234567890",
-  measurementId: "G-ABCDEF1234"
+  storageBucket: "kamao-1dd88.firebasestorage.app",
+  messagingSenderId: "794021762838",
+  appId: "1:794021762838:web:152d9826cbd5080880a237",
+  measurementId: "G-BY93FQG5BL"
 };
 
 // Initialize Firebase
