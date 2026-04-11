@@ -4929,16 +4929,7 @@ if ('serviceWorker' in navigator) {
       .catch(function(error) {
         console.log('Firebase SW failed:', error);
       });
-
-    // PWA SW (IMPORTANT)
-    navigator.serviceWorker.register('/sw.js')
-      .then(function() {
-        console.log('PWA SW registered');
-      })
-      .catch(function(err) {
-        console.log('PWA SW failed:', err);
-      });
-
+      
   });
 }
  </script>
