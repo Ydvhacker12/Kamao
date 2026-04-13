@@ -1,0 +1,265 @@
+{
+  "rules": {
+    "users": {
+      ".read": "auth != null",
+      ".indexOn": "totalEarnings",
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() == true)",
+        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+        
+        "displayName": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 50"
+        },
+        "email": {
+          ".validate": "newData.isString() && newData.val().matches(/^[^@]+@[^@]+\\.[^@]+$/)"
+        },
+        "photoURL": {
+          ".validate": "newData.isString() && (newData.val() == '' || newData.val().matches(/^data:image\\//) || newData.val().matches(/^https:\\/\\//))"
+        },
+        "balance": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "winningCash": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "bonusCash": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "totalEarnings": {
+          ".read": true,
+          ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid"
+        },
+        "isAdmin": {
+          ".read": true,
+          ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid"
+        },
+        "referralCode": {
+          ".validate": "newData.isString() && newData.val().length >= 6 && newData.val().length <= 20"
+        },
+        "referredBy": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber() || newData.isString()"
+        },
+        
+        "lastActive": {
+          ".read": true,
+          ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+          ".validate": "newData.isNumber() || newData.isString()"
+        },
+        
+        "meta": {
+          ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() == true)",
+          ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+          
+          "device": {
+            ".validate": "newData.hasChildren(['userAgent', 'deviceType', 'browser', 'screenWidth', 'screenHeight', 'timestamp'])"
+          },
+          "location": {
+            ".validate": "newData.hasChildren(['ip', 'city', 'region', 'country', 'timestamp'])"
+          }
+        },
+        
+        "fcmToken": {
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+          ".validate": "newData.hasChildren(['token', 'updatedAt', 'platform'])"
+        }
+      }
+    },
+    
+    "adminConfig": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    
+    "tournamentPricing": {
+      ".read": true,
+      ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid",
+      
+      "tiers": {
+        "$tierId": {
+          ".validate": "newData.hasChildren(['name', 'price', 'tournamentLimit', 'description', 'status'])"
+        }
+      },
+      "settings": {
+        ".validate": "newData.hasChildren(['enabled', 'defaultTier'])"
+      }
+    },
+    
+    "tournaments": {
+      ".read": true,
+      ".indexOn": "gameId",
+      "$tournamentId": {
+        ".read": true,
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid || (data.exists() && data.child('status').val() == 'upcoming' && data.child('creatorId').val() == auth.uid))",
+        
+        ".validate": "newData.hasChildren(['name', 'gameName', 'status', 'entryFee', 'startTime', 'creatorId']) || !newData.exists()",
+        
+        "registeredPlayers": {
+          "$playerId": {
+            ".write": "auth != null && auth.uid == $playerId && root.child('tournaments').child($tournamentId).child('status').val() == 'upcoming' && !root.child('tournaments').child($tournamentId).child('registeredPlayers').child($playerId).exists() && newData.hasChildren(['joinedAt', 'seat', 'teamSize', 'displayName', 'uid', 'team'])",
+            ".validate": "newData.hasChildren(['joinedAt', 'seat', 'teamSize', 'displayName', 'uid', 'team']) || newData.val() == null"
+          }
+        },
+        
+        "results": {
+          "$playerId": {
+            ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid",
+            ".validate": "newData.hasChildren(['rank', 'prize', 'kills']) || newData.val() == null"
+          }
+        }
+      }
+    },
+    
+    "payments": {
+      "$paymentId": {
+        ".read": "auth != null && (root.child('payments').child($paymentId).child('userId').val() == auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+        ".write": "auth != null && (root.child('payments').child($paymentId).child('userId').val() == auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+        
+        ".validate": "newData.hasChildren(['userId', 'amount', 'status', 'timestamp', 'paymentMethod'])"
+      }
+    },
+    
+    "transactions": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+        
+        "$transactionId": {
+          ".validate": "newData.hasChildren(['type', 'amount', 'description', 'timestamp']) && newData.child('amount').isNumber()"
+        }
+      }
+    },
+    
+    "withdrawals": {
+      ".read": "auth != null",
+      "$withdrawalId": {
+        ".read": "auth != null && (root.child('withdrawals').child($withdrawalId).child('userId').val() == auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+        ".write": "auth != null && (root.child('withdrawals').child($withdrawalId).child('userId').val() == auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+        
+        ".validate": "newData.hasChildren(['userId', 'amount', 'status', 'timestamp', 'withdrawalMethod'])"
+      }
+    },
+    
+    "referrals": {
+      "$referralId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        
+        ".validate": "newData.hasChildren(['new_user_id', 'referrer_user_id', 'bonus_amount_new_user', 'bonus_amount_referrer', 'date'])"
+      }
+    },
+    
+    "referralCodeToUid": {
+      "$referralCode": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        
+        ".validate": "newData.hasChildren(['uid'])"
+      }
+    },
+    
+    "phoneToUid": {
+      "$phone": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        
+        ".validate": "newData.hasChildren(['uid'])"
+      }
+    },
+    
+    "notifications": {
+      ".read": "auth != null",
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+        ".indexOn": "read",
+        
+        "$notificationId": {
+          ".validate": "newData.hasChildren(['title', 'message', 'timestamp', 'read', 'type'])"
+        }
+      }
+    },
+    
+    "user_notifications": {
+      ".read": "auth != null",
+      ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid",
+      "$notificationId": {
+        ".validate": "newData.hasChildren(['message', 'title', 'icon', 'timestamp'])"
+      }
+    },
+    
+    "settings": {
+      ".read": true,
+      ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid",
+      
+      ".validate": "newData.hasChildren(['appName', 'logoUrl', 'minWithdraw']) && (newData.hasChild('referralBonus') || newData.hasChild('referrerBonus'))"
+    },
+    
+    "ads_code": {
+      ".read": true,
+      ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid",
+      
+      ".validate": "newData.hasChildren(['htmlCode', 'updatedAt'])"
+    },
+    
+    "games": {
+      ".read": true,
+      "$gameId": {
+        ".read": true,
+        ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid",
+        
+        ".validate": "newData.hasChildren(['name', 'category', 'status', 'imageUrl'])"
+      }
+    },
+    
+    "promotions": {
+      ".read": true,
+      "$promotionId": {
+        ".read": true,
+        ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid",
+        
+        ".validate": "newData.hasChildren(['title', 'description', 'imageUrl', 'status', 'startDate', 'endDate'])"
+      }
+    },
+    
+    "help_center": {
+      "$sessionId": {
+        ".read": "auth != null && (root.child('help_center').child($sessionId).child('userId').val() == auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+        ".write": "auth != null && (root.child('help_center').child($sessionId).child('userId').val() == auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+        
+        ".validate": "newData.hasChildren(['userId', 'message', 'timestamp', 'status', 'adminReply'])"
+      }
+    },
+    
+    "app_updates": {
+      "$updateId": {
+        ".read": "auth != null",
+        ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid",
+        
+        ".validate": "newData.hasChildren(['version', 'title', 'description', 'timestamp', 'forceUpdate'])"
+      }
+    },
+    
+    "premiumPlans": {
+      ".read": true,
+      "$planId": {
+        ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid",
+        
+        ".validate": "newData.hasChildren(['name', 'price', 'durationDays', 'active'])"
+      }
+    },
+    
+    "paymentRequests": {
+      ".read": "auth != null",
+      "$paymentRequestId": {
+        ".read": "auth != null && (root.child('paymentRequests').child($paymentRequestId).child('userId').val() == auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+        ".write": "auth != null && (root.child('paymentRequests').child($paymentRequestId).child('userId').val() == auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+        
+        ".validate": "newData.hasChildren(['userId', 'userName', 'amount', 'txnId', 'upiUsed', 'screenshot', 'status', 'submittedAt'])"
+      }
+    }
+  }
+}
