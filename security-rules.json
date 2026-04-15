@@ -137,9 +137,9 @@
       ".read": "auth != null",
       "$withdrawalId": {
         ".read": "auth != null && (root.child('withdrawals').child($withdrawalId).child('userId').val() == auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
-        ".write": "auth != null && (root.child('withdrawals').child($withdrawalId).child('userId').val() == auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+        ".write": "auth != null && (newData.child('userId').val() == auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
         
-        ".validate": "newData.hasChildren(['userId', 'amount', 'status', 'timestamp', 'withdrawalMethod'])"
+        ".validate": "newData.hasChildren(['userId', 'amount', 'status', 'requestTimestamp', 'methodDetails'])"
       }
     },
     
