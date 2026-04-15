@@ -1476,7 +1476,6 @@ const firebaseConfig = {
                 }, 3000);
             }
         }
-        function generateReferralCode(length = 8) { const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; let result = ''; for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length)); return result; }
         function getTimeRemaining(startTime) { if (!startTime) return 'TBA'; const now = Date.now(); const diff = startTime - now; if (diff <= 0) return 'Starting Soon'; const days = Math.floor(diff / 86400000); const hours = Math.floor((diff % 86400000) / 3600000); const minutes = Math.floor((diff % 3600000) / 60000); let o = ''; if (days > 0) o += `${days}d `; if (hours > 0 || days > 0) o += `${hours}h `; o += `${minutes}m`; return o.trim() || 'Now'; }
         const removePlaceholders = (parentElement) => { if (!parentElement) return; parentElement.classList.remove('placeholder-glow'); parentElement.querySelectorAll('.placeholder').forEach(el => el.remove()); };
 
@@ -2183,7 +2182,6 @@ const firebaseConfig = {
                             newUserBonus = parseFloat(appSettings.referralBonus);
                         }
                         
-                        const newReferralCode = generateReferralCode();
                         const newUserProfile = {
                             uid: user.uid,
                             displayName: name || 'New User',
@@ -2201,14 +2199,12 @@ const firebaseConfig = {
                             referralEarnings: 0,
                             joinedTournaments: {},
                             isAdmin: false,
-                            referralCode: newReferralCode,
+                            referralCode: null, // No longer generating referral codes
                             referredBy: validatedReferrerInfo ? validatedReferrerInfo.uid : null
                         };
                         await set(userRef, newUserProfile);
                         
-                        // Create the referralCodeToUid mapping
-                        const referralCodeRef = ref(db, `referralCodeToUid/${newReferralCode}`);
-                        await set(referralCodeRef, { uid: user.uid });
+                        // No longer creating referralCodeToUid mapping
 
                         if(phone){
                             const phoneRef = ref(db, `phoneToUid/${phone}`);
@@ -2669,7 +2665,7 @@ const firebaseConfig = {
             }
         }
 
-        // MODIFIED handleSignup to use the new referral check method
+        // MODIFIED handleSignup to use the new referral check method with URL parameter support
         async function handleSignup() {
             const name = elements.signupNameInput.value.trim();
             const email = elements.signupEmailInput.value.trim();
@@ -2706,40 +2702,94 @@ const firebaseConfig = {
                     throw new Error("This phone number is already registered.");
                 }
 
-                if (referralCode) {
-                    const referralCodeRef = ref(db, `referralCodeToUid/${referralCode}`);
-                    const snapshot = await get(referralCodeRef);
+                // Check for referral UID from URL parameters (landing page passes ?ref=UID)
+                const urlParams = new URLSearchParams(window.location.search);
+                const referralUidFromUrl = urlParams.get('ref');
+                
+                // Determine which referral source to use: URL parameter takes precedence over input field
+                let referralSource = null;
+                let referralSourceType = null;
+                
+                if (referralUidFromUrl) {
+                    referralSource = referralUidFromUrl;
+                    referralSourceType = 'url';
+                    console.log("Found referral UID from URL:", referralUidFromUrl);
+                } else if (referralCode) {
+                    referralSource = referralCode;
+                    referralSourceType = 'code';
+                    console.log("Found referral code from input:", referralCode);
+                }
 
-                    if (snapshot.exists()) {
-                        const { uid: referrerId } = snapshot.val();
-                        if (!referrerId) {
-                             throw new Error("Referrer UID not found for the given code.");
-                        }
-
+                if (referralSource) {
+                    let referrerId = null;
+                    let referrerProfile = null;
+                    
+                    if (referralSourceType === 'url') {
+                        // Direct UID from URL - validate the user exists
+                        referrerId = referralSource;
                         const referrerProfileRef = ref(db, `users/${referrerId}`);
                         const referrerProfileSnapshot = await get(referrerProfileRef);
-
-                        if (!referrerProfileSnapshot.exists()) {
-                            throw new Error("Referrer profile does not exist.");
-                        }
                         
-                        const referrerProfile = referrerProfileSnapshot.val();
-
-                        if (referrerProfile.email === email) {
-                            showStatusMessage(elements.signupStatusMessage, "You cannot use your own referral code.", 'warning');
+                        if (!referrerProfileSnapshot.exists()) {
+                            showStatusMessage(elements.signupStatusMessage, "Invalid referral link. The referrer does not exist.", 'danger');
                             showLoader(false);
                             return;
                         }
-
+                        
+                        referrerProfile = referrerProfileSnapshot.val();
+                        
+                        // Check for self-referral (user trying to refer themselves)
+                        if (referrerProfile.email === email) {
+                            showStatusMessage(elements.signupStatusMessage, "This is a self-referral. You cannot refer yourself.", 'warning');
+                            showLoader(false);
+                            return;
+                        }
+                        
                         validatedReferrerInfo = {
                             uid: referrerId,
                             displayName: referrerProfile.displayName
                         };
-                        console.log("Valid referral code found for user:", validatedReferrerInfo.displayName);
-                    } else {
-                        showStatusMessage(elements.signupStatusMessage, "Invalid referral code. Please check it or leave it blank.", 'danger');
-                        showLoader(false);
-                        return;
+                        console.log("Valid referral UID found from URL for user:", validatedReferrerInfo.displayName);
+                        
+                        // Show success message for valid referral
+                        showStatusMessage(elements.signupStatusMessage, `You are being referred by ${validatedReferrerInfo.displayName}! You'll get a bonus on signup.`, 'success');
+                        
+                    } else if (referralSourceType === 'code') {
+                        // Legacy referral code system (for backward compatibility)
+                        const referralCodeRef = ref(db, `referralCodeToUid/${referralSource}`);
+                        const snapshot = await get(referralCodeRef);
+
+                        if (snapshot.exists()) {
+                            const { uid: codeReferrerId } = snapshot.val();
+                            if (!codeReferrerId) {
+                                 throw new Error("Referrer UID not found for the given code.");
+                            }
+
+                            const referrerProfileRef = ref(db, `users/${codeReferrerId}`);
+                            const referrerProfileSnapshot = await get(referrerProfileRef);
+
+                            if (!referrerProfileSnapshot.exists()) {
+                                throw new Error("Referrer profile does not exist.");
+                            }
+                            
+                            referrerProfile = referrerProfileSnapshot.val();
+
+                            if (referrerProfile.email === email) {
+                                showStatusMessage(elements.signupStatusMessage, "You cannot use your own referral code.", 'warning');
+                                showLoader(false);
+                                return;
+                            }
+
+                            validatedReferrerInfo = {
+                                uid: codeReferrerId,
+                                displayName: referrerProfile.displayName
+                            };
+                            console.log("Valid referral code found for user:", validatedReferrerInfo.displayName);
+                        } else {
+                            showStatusMessage(elements.signupStatusMessage, "Invalid referral code. Please check it or leave it blank.", 'danger');
+                            showLoader(false);
+                            return;
+                        }
                     }
                 }
                 await createUserWithEmailAndPassword(auth, email, password);
@@ -2944,79 +2994,79 @@ const firebaseConfig = {
         // =============================================
         // FIX #2: handlePolicyClick (was Missing - causing Error)
         // =============================================
-        async function handlePolicyClick(event) { 
-            event.preventDefault(); 
-            const target = event.currentTarget; 
-            const policyType = target.dataset.policy; 
-            if (!policyType) return; 
+        async function handlePolicyClick(event) {
+            event.preventDefault();
+            const target = event.currentTarget;
+            const policyType = target.dataset.policy;
+            if (!policyType) return;
             
-            if (policyType === 'refer') { 
-                if (!currentUser) { 
-                    alert("Please log in to see your referral code."); 
-                    return; 
-                } 
-                const refCode = userProfile.referralCode || 'N/A'; 
-                const refBonus = appSettings?.referralBonus || 0; 
-                const refDesc = appSettings?.referralDescription || `Get ₹${refBonus} when your friend joins using your code.`; 
-                const referralLink = `${window.location.origin}/?ref=${refCode}`; 
+            if (policyType === 'refer') {
+                if (!currentUser) {
+                    alert("Please log in to see your referral link.");
+                    return;
+                }
+                const refBonus = appSettings?.referralBonus || 0;
+                const refDesc = appSettings?.referralDescription || `Get ₹${refBonus} when your friend joins using your link.`;
+                const referralLink = `https://kamao.gamer.gd/?ref=${currentUser.uid}`;
                 
-                const modalBodyContent = ` 
-                    <div class="text-center"> 
-                        <h4>Refer Friends!</h4> 
-                        <p class="text-secondary">Share your code and earn rewards!</p> 
-                        <div class="my-4 p-3" style="background: var(--primary-bg); border-radius: 8px;"> 
-                            <p class="small text-secondary mb-1">Your Code:</p> 
-                            <h3 class="text-accent referral-code" id="referralCodeDisplay">${refCode}</h3> 
-                            <div class="mt-3 d-flex justify-content-center gap-2"> 
-                                <button class="btn btn-sm btn-custom btn-custom-secondary" id="copyReferralCodeBtn"> 
-                                    <i class="fa-solid fa-clipboard"></i> Copy Code 
-                                </button> 
-                                <button class="btn btn-sm btn-custom btn-custom-secondary" id="shareReferralLinkBtn"> 
-                                    <i class="fa-solid fa-share-alt"></i> Share Link 
-                                </button> 
-                            </div> 
-                        </div> 
-                        <p class="mt-3 small text-secondary">${refDesc}</p> 
-                    </div>`; 
+                const modalBodyContent = `
+                    <div class="text-center">
+                        <h4>Refer Friends!</h4>
+                        <p class="text-secondary">Share your link and earn rewards!</p>
+                        <div class="my-4 p-3" style="background: var(--primary-bg); border-radius: 8px;">
+                            <p class="small text-secondary mb-1">Your Direct Referral Link:</p>
+                            <h6 class="text-accent referral-code" id="referralLinkDisplay" style="word-break: break-all; font-size: 0.9rem;">${referralLink}</h6>
+                            <div class="mt-3 d-flex justify-content-center gap-2">
+                                <button class="btn btn-sm btn-custom btn-custom-secondary" id="copyReferralLinkBtn">
+                                    <i class="fa-solid fa-clipboard"></i> Copy Link
+                                </button>
+                                <button class="btn btn-sm btn-custom btn-custom-secondary" id="shareReferralLinkBtn">
+                                    <i class="fa-solid fa-share-alt"></i> Share Link
+                                </button>
+                            </div>
+                        </div>
+                        <p class="mt-3 small text-secondary">${refDesc}</p>
+                        <p class="mt-2 small text-info"><i class="fa-solid fa-info-circle"></i> When your friend downloads the app from this link, you'll earn a referral bonus automatically.</p>
+                    </div>`;
                     
-                elements.policyModalTitle.textContent = 'Refer & Earn'; 
-                elements.policyModalBody.innerHTML = modalBodyContent; 
-                elements.policyModalInstance.show(); 
+                elements.policyModalTitle.textContent = 'Refer & Earn';
+                elements.policyModalBody.innerHTML = modalBodyContent;
+                elements.policyModalInstance.show();
                 
-                const copyCodeBtn = getElement('copyReferralCodeBtn'); 
-                const shareLinkBtn = getElement('shareReferralLinkBtn'); 
+                const copyLinkBtn = getElement('copyReferralLinkBtn');
+                const shareLinkBtn = getElement('shareReferralLinkBtn');
                 
-                if (copyCodeBtn) { 
-                    copyCodeBtn.onclick = () => { 
-                        navigator.clipboard.writeText(refCode) 
-                            .then(() => showToast("Referral code copied!")) 
-                            .catch(err => console.error('Failed to copy code:', err)); 
-                    }; 
-                } 
+                if (copyLinkBtn) {
+                    copyLinkBtn.onclick = () => {
+                        navigator.clipboard.writeText(referralLink)
+                            .then(() => showToast("Referral link copied!"))
+                            .catch(err => console.error('Failed to copy link:', err));
+                    };
+                }
                 
-                if (shareLinkBtn) { 
-                    shareLinkBtn.onclick = async () => { 
-                        const shareData = { 
-                            title: 'Join and Earn Rewards! 🎁', 
-                            text: `Use my referral code ${refCode} and earn rewards!`, 
-                            url: referralLink 
-                        }; 
-                        try { 
-                            if (navigator.share) { 
-                                await navigator.share(shareData); 
-                            } else { 
-                                await navigator.clipboard.writeText(referralLink); 
-                                showToast("Share not supported, referral link copied!"); 
-                            } 
-                        } catch (err) { 
-                            console.log("Share failed, copying link instead.", err); 
-                            await navigator.clipboard.writeText(referralLink); 
-                            showToast("Referral link copied!"); 
-                        } 
-                    }; 
-                } 
-                return; 
-            } 
+                if (shareLinkBtn) {
+                    shareLinkBtn.onclick = async () => {
+                        const shareData = {
+                            title: 'Join Kamao and Earn Rewards! 🎁',
+                            text: `Join Kamao using my referral link and earn ₹${refBonus} bonus!`,
+                            url: referralLink
+                        };
+                        try {
+                            if (navigator.share) {
+                                await navigator.share(shareData);
+                            } else {
+                                await navigator.clipboard.writeText(referralLink);
+                                showToast("Share not supported, referral link copied!");
+                            }
+                        } catch (err) {
+                            console.log("Share failed, copying link instead.", err);
+                            await navigator.clipboard.writeText(referralLink);
+                            showToast("Referral link copied!");
+                        }
+                    };
+                }
+                return;
+            }
             
             if (!elements.policyModalInstance) return; 
             
