@@ -109,6 +109,33 @@
             ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid",
             ".validate": "newData.hasChildren(['rank', 'prize', 'kills']) || newData.val() == null"
           }
+        },
+        
+        "likes": {
+          "$userId": {
+            ".write": "auth != null && auth.uid == $userId",
+            ".validate": "newData.isBoolean() || newData.val() == null"
+          }
+        },
+        
+        "comments": {
+          "$commentId": {
+            ".read": true,
+            ".write": "auth != null && ((newData.exists() && newData.child('uid').val() == auth.uid) || (!newData.exists() && data.child('uid').val() == auth.uid) || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+            ".validate": "newData.hasChildren(['text', 'author', 'uid', 'ts']) || newData.val() == null",
+            
+            "replies": {
+              "$replyId": {
+                ".write": "auth != null && ((newData.exists() && newData.child('uid').val() == auth.uid) || (!newData.exists() && data.child('uid').val() == auth.uid) || root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid)",
+                ".validate": "newData.hasChildren(['text', 'author', 'uid', 'ts']) || newData.val() == null"
+              }
+            },
+            
+            "pinned": {
+              ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid",
+              ".validate": "newData.isBoolean() || newData.val() == null"
+            }
+          }
         }
       }
     },
