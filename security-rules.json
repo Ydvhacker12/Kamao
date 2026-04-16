@@ -95,7 +95,7 @@
         ".read": true,
         ".write": "auth != null && (root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid || (data.exists() && data.child('status').val() == 'upcoming' && data.child('createdBy').val() == auth.uid))",
         
-        ".validate": "newData.hasChildren(['name', 'gameName', 'status', 'entryFee', 'startTime', 'createdBy']) || !newData.exists()",
+        ".validate": "newData.hasChildren(['name', 'gameName', 'status', 'entryFee', 'startTime', 'createdBy', 'gameId']) || !newData.exists()",
         
         "registeredPlayers": {
           "$playerId": {
@@ -235,11 +235,13 @@
     },
     
     "app_updates": {
+      ".read": "auth != null",
+      ".indexOn": "created_at",
       "$updateId": {
         ".read": "auth != null",
         ".write": "root.child('users').child(auth.uid).child('isAdmin').val() == true || root.child('adminConfig').child('adminUid').val() == auth.uid",
         
-        ".validate": "newData.hasChildren(['version', 'title', 'description', 'timestamp', 'forceUpdate'])"
+        ".validate": "newData.hasChildren(['version', 'apk_url', 'release_notes', 'created_at', 'force_update'])"
       }
     },
     
